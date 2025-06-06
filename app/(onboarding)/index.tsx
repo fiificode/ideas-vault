@@ -12,7 +12,8 @@ import {
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { useAuth } from "../context/auth";
 
-const { width } = Dimensions.get("window");
+const { width, height } = Dimensions.get("window");
+const isSmallDevice = height < 700;
 
 const onboardingSteps = [
   {
@@ -31,6 +32,12 @@ const onboardingSteps = [
     title: "Never Lose an Idea",
     description:
       "Quickly capture your thoughts and access them whenever you need.",
+    image: require("@/assets/images/onboarding-3.png"),
+  },
+  {
+    title: "Collaborate Seamlessly",
+    description:
+      "Share your ideas with team members and work together in real-time to bring your concepts to life.",
     image: require("@/assets/images/onboarding-3.png"),
   },
 ];
@@ -137,55 +144,58 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: 20,
+    paddingHorizontal: width * 0.05,
     width: width,
   },
   imageContainer: {
-    flex: 1,
+    flex: isSmallDevice ? 0.8 : 1,
     width: "100%",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: height * 0.02,
   },
   image: {
     width: width * 0.8,
     height: width * 0.8,
+    maxHeight: height * 0.4,
   },
   textContainer: {
     alignItems: "center",
-    marginBottom: 40,
+    marginBottom: height * 0.04,
+    paddingHorizontal: width * 0.05,
   },
   title: {
-    fontSize: 28,
+    fontSize: width * 0.07,
     fontWeight: "bold",
     textAlign: "center",
-    marginBottom: 20,
+    marginBottom: height * 0.02,
     color: "#1a1a1a",
   },
   description: {
-    fontSize: 16,
+    fontSize: width * 0.04,
     textAlign: "center",
     color: "#666",
-    lineHeight: 24,
+    lineHeight: width * 0.06,
   },
   footer: {
-    padding: 20,
+    padding: width * 0.05,
+    paddingBottom: height * 0.03,
   },
   dots: {
     flexDirection: "row",
     justifyContent: "center",
-    marginBottom: 20,
+    marginBottom: height * 0.02,
   },
   dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    width: width * 0.02,
+    height: width * 0.02,
+    borderRadius: width * 0.01,
     backgroundColor: "#ddd",
-    marginHorizontal: 4,
+    marginHorizontal: width * 0.01,
   },
   activeDot: {
     backgroundColor: "#007AFF",
-    width: 20,
+    width: width * 0.05,
   },
   buttons: {
     flexDirection: "row",
@@ -193,21 +203,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   skipButton: {
-    padding: 10,
+    padding: width * 0.02,
   },
   skipText: {
     color: "#666",
-    fontSize: 16,
+    fontSize: width * 0.04,
   },
   nextButton: {
     backgroundColor: "#007AFF",
-    paddingHorizontal: 30,
-    paddingVertical: 12,
-    borderRadius: 25,
+    paddingHorizontal: width * 0.08,
+    paddingVertical: height * 0.015,
+    borderRadius: width * 0.06,
   },
   nextText: {
     color: "#fff",
-    fontSize: 16,
+    fontSize: width * 0.04,
     fontWeight: "600",
   },
 });
