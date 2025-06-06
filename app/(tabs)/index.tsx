@@ -1,75 +1,160 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
-
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import BoardCard from "@/components/BoardCard";
+import EmptyState from "@/components/EmptyState";
+import IdeaCard from "@/components/IdeaCard";
+import { colors } from "@/constants/colors";
+import { useBoardStore } from "@/store/boardStore";
+import { Idea } from "@/types";
+import { useRouter } from "expo-router";
+import { Plus } from "lucide-react-native";
+import React, { useEffect, useState } from "react";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 export default function HomeScreen() {
+  const router = useRouter();
+  const { boards, ideas } = useBoardStore();
+  const [recentIdeas, setRecentIdeas] = useState<Idea[]>([]);
+
+  useEffect(() => {
+    // Get the 5 most recent ideas
+    const sorted = [...ideas].sort(
+      (a, b) =>
+        new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+    );
+    setRecentIdeas(sorted.slice(0, 5));
+  }, [ideas]);
+
+  const navigateToCreateBoard = () => {
+    router.push("/modal/create-board");
+  };
+
+  if (boards.length === 0) {
+    return (
+      <EmptyState
+        title="Welcome to Ideascape!"
+        message="Start by creating your first idea board. Boards help you organize related ideas into collections."
+        buttonText="Create First Board"
+        onPress={navigateToCreateBoard}
+      />
+    );
+  }
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      <View style={styles.header}>
+        <Text style={styles.title}>Welcome to Ideascape</Text>
+        <Text style={styles.subtitle}>Organize and track your ideas</Text>
+      </View>
+
+      <View style={styles.section}>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Your Boards</Text>
+          <Pressable
+            style={({ pressed }) => [
+              styles.addButton,
+              pressed && styles.buttonPressed,
+            ]}
+            onPress={navigateToCreateBoard}
+          >
+            <Plus size={16} color="#FFFFFF" />
+            <Text style={styles.addButtonText}>New Board</Text>
+          </Pressable>
+        </View>
+
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.boardsContainer}
+        >
+          {boards.map((board) => (
+            <View key={board.id} style={styles.boardCardWrapper}>
+              <BoardCard board={board} ideas={ideas} />
+            </View>
+          ))}
+        </ScrollView>
+      </View>
+
+      <View style={styles.section}>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Recent Ideas</Text>
+        </View>
+
+        {recentIdeas.length > 0 ? (
+          recentIdeas.map((idea) => <IdeaCard key={idea.id} idea={idea} />)
+        ) : (
+          <Text style={styles.emptyText}>
+            You haven&apos;t created any ideas yet. Go to a board to add your
+            first idea.
+          </Text>
+        )}
+      </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  container: {
+    flex: 1,
+    backgroundColor: colors.background,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  content: {
+    padding: 16,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  header: {
+    marginBottom: 24,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: "700",
+    color: colors.text,
+    marginBottom: 4,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: colors.textSecondary,
+  },
+  section: {
+    marginBottom: 32,
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: "600",
+    color: colors.text,
+  },
+  addButton: {
+    flexDirection: "row",
+    backgroundColor: colors.primary,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  buttonPressed: {
+    opacity: 0.8,
+  },
+  addButtonText: {
+    color: "#FFFFFF",
+    fontWeight: "500",
+    fontSize: 14,
+    marginLeft: 4,
+  },
+  boardsContainer: {
+    paddingBottom: 8,
+  },
+  boardCardWrapper: {
+    width: 280,
+    marginRight: 16,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: colors.textSecondary,
+    textAlign: "center",
+    marginTop: 16,
+    fontStyle: "italic",
   },
 });
