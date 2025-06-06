@@ -1,8 +1,9 @@
 import { Image } from "expo-image";
 import { router } from "expo-router";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   Dimensions,
+  FlatList,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -37,9 +38,14 @@ const onboardingSteps = [
 export default function OnboardingScreen() {
   const [currentStep, setCurrentStep] = useState(0);
   const { completeOnboarding } = useAuth();
+  const flatListRef = useRef<FlatList>(null);
 
   const handleNext = async () => {
     if (currentStep < onboardingSteps.length - 1) {
+      flatListRef.current?.scrollToIndex({
+        index: currentStep + 1,
+        animated: true,
+      });
       setCurrentStep(currentStep + 1);
     } else {
       await completeOnboarding();
@@ -52,24 +58,48 @@ export default function OnboardingScreen() {
     router.replace("/auth/sign-in");
   };
 
+  const renderItem = ({
+    item,
+    index,
+  }: {
+    item: (typeof onboardingSteps)[0];
+    index: number;
+  }) => (
+    <Animated.View entering={FadeIn} exiting={FadeOut} style={styles.content}>
+      <View style={styles.imageContainer}>
+        <Image
+          source={item.image}
+          style={styles.image}
+          contentFit="contain"
+          transition={200}
+        />
+      </View>
+      <View style={styles.textContainer}>
+        <Text style={styles.title}>{item.title}</Text>
+        <Text style={styles.description}>{item.description}</Text>
+      </View>
+    </Animated.View>
+  );
+
+  const onViewableItemsChanged = useRef(({ viewableItems }: any) => {
+    if (viewableItems[0]) {
+      setCurrentStep(viewableItems[0].index);
+    }
+  }).current;
+
   return (
     <View style={styles.container}>
-      <Animated.View entering={FadeIn} exiting={FadeOut} style={styles.content}>
-        <View style={styles.imageContainer}>
-          <Image
-            source={onboardingSteps[currentStep].image}
-            style={styles.image}
-            contentFit="contain"
-            transition={200}
-          />
-        </View>
-        <View style={styles.textContainer}>
-          <Text style={styles.title}>{onboardingSteps[currentStep].title}</Text>
-          <Text style={styles.description}>
-            {onboardingSteps[currentStep].description}
-          </Text>
-        </View>
-      </Animated.View>
+      <FlatList
+        ref={flatListRef}
+        data={onboardingSteps}
+        renderItem={renderItem}
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        onViewableItemsChanged={onViewableItemsChanged}
+        viewabilityConfig={{ itemVisiblePercentThreshold: 50 }}
+        keyExtractor={(_, index) => index.toString()}
+      />
 
       <View style={styles.footer}>
         <View style={styles.dots}>
@@ -108,6 +138,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 20,
+    width: width,
   },
   imageContainer: {
     flex: 1,
