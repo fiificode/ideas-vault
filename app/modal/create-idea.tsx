@@ -57,6 +57,17 @@ export default function CreateIdeaScreen() {
     <View style={styles.container}>
       <Stack.Screen
         options={{
+          headerShown: true,
+          title: "Create Idea",
+          headerTitleStyle: {
+            fontSize: 20,
+            fontWeight: "600",
+            color: colors.text,
+          },
+          headerTitleAlign: "center",
+          headerStyle: {
+            backgroundColor: colors.background,
+          },
           headerLeft: () => (
             <Pressable
               style={styles.headerButton}

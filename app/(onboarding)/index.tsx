@@ -4,6 +4,7 @@ import React, { useRef, useState } from "react";
 import {
   Dimensions,
   FlatList,
+  SafeAreaView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -95,47 +96,53 @@ export default function OnboardingScreen() {
   }).current;
 
   return (
-    <View style={styles.container}>
-      <FlatList
-        ref={flatListRef}
-        data={onboardingSteps}
-        renderItem={renderItem}
-        horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        onViewableItemsChanged={onViewableItemsChanged}
-        viewabilityConfig={{ itemVisiblePercentThreshold: 50 }}
-        keyExtractor={(_, index) => index.toString()}
-      />
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        <FlatList
+          ref={flatListRef}
+          data={onboardingSteps}
+          renderItem={renderItem}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          onViewableItemsChanged={onViewableItemsChanged}
+          viewabilityConfig={{ itemVisiblePercentThreshold: 50 }}
+          keyExtractor={(_, index) => index.toString()}
+        />
 
-      <View style={styles.footer}>
-        <View style={styles.dots}>
-          {onboardingSteps.map((_, index) => (
-            <View
-              key={index}
-              style={[styles.dot, index === currentStep && styles.activeDot]}
-            />
-          ))}
-        </View>
+        <View style={styles.footer}>
+          <View style={styles.dots}>
+            {onboardingSteps.map((_, index) => (
+              <View
+                key={index}
+                style={[styles.dot, index === currentStep && styles.activeDot]}
+              />
+            ))}
+          </View>
 
-        <View style={styles.buttons}>
-          <TouchableOpacity onPress={handleSkip} style={styles.skipButton}>
-            <Text style={styles.skipText}>Skip</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={handleNext} style={styles.nextButton}>
-            <Text style={styles.nextText}>
-              {currentStep === onboardingSteps.length - 1
-                ? "Get Started"
-                : "Next"}
-            </Text>
-          </TouchableOpacity>
+          <View style={styles.buttons}>
+            <TouchableOpacity onPress={handleSkip} style={styles.skipButton}>
+              <Text style={styles.skipText}>Skip</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={handleNext} style={styles.nextButton}>
+              <Text style={styles.nextText}>
+                {currentStep === onboardingSteps.length - 1
+                  ? "Get Started"
+                  : "Next"}
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#fff",
+  },
   container: {
     flex: 1,
     backgroundColor: "#fff",

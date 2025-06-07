@@ -6,7 +6,7 @@ import { colors } from "@/constants/colors";
 import { useBoardStore } from "@/store/boardStore";
 import { formatDate } from "@/utils/helpers";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
-import { Trash2 } from "lucide-react-native";
+import { ChevronLeft, Trash2 } from "lucide-react-native";
 import React, { useState } from "react";
 import {
   Alert,
@@ -17,6 +17,7 @@ import {
   TextInput,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function IdeaDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -92,90 +93,108 @@ export default function IdeaDetailScreen() {
           ),
         }}
       />
-
-      <ScrollView contentContainerStyle={styles.content}>
-        {isEditing ? (
-          <View style={styles.editContainer}>
-            <TextInput
-              style={styles.titleInput}
-              value={title}
-              onChangeText={setTitle}
-              placeholder="Idea Title"
-              placeholderTextColor={colors.textSecondary}
-            />
-            <TextInput
-              style={styles.descriptionInput}
-              value={description}
-              onChangeText={setDescription}
-              placeholder="Describe your idea..."
-              placeholderTextColor={colors.textSecondary}
-              multiline
-              textAlignVertical="top"
-            />
-            <View style={styles.editButtons}>
-              <Pressable
-                style={[styles.editButton, styles.cancelButton]}
-                onPress={() => {
-                  setTitle(idea.title);
-                  setDescription(idea.description);
-                  setIsEditing(false);
-                }}
-              >
-                <Text style={styles.cancelButtonText}>Cancel</Text>
-              </Pressable>
-              <Pressable
-                style={[styles.editButton, styles.saveButton]}
-                onPress={handleSave}
-              >
-                <Text style={styles.saveButtonText}>Save</Text>
-              </Pressable>
+      <SafeAreaView>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.content}
+        >
+          {isEditing ? (
+            <View style={styles.editContainer}>
+              <TextInput
+                style={styles.titleInput}
+                value={title}
+                onChangeText={setTitle}
+                placeholder="Idea Title"
+                placeholderTextColor={colors.textSecondary}
+              />
+              <TextInput
+                style={styles.descriptionInput}
+                value={description}
+                onChangeText={setDescription}
+                placeholder="Describe your idea..."
+                placeholderTextColor={colors.textSecondary}
+                multiline
+                textAlignVertical="top"
+              />
+              <View style={styles.editButtons}>
+                <Pressable
+                  style={[styles.editButton, styles.cancelButton]}
+                  onPress={() => {
+                    setTitle(idea.title);
+                    setDescription(idea.description);
+                    setIsEditing(false);
+                  }}
+                >
+                  <Text style={styles.cancelButtonText}>Cancel</Text>
+                </Pressable>
+                <Pressable
+                  style={[styles.editButton, styles.saveButton]}
+                  onPress={handleSave}
+                >
+                  <Text style={styles.saveButtonText}>Save</Text>
+                </Pressable>
+              </View>
             </View>
-          </View>
-        ) : (
-          <View style={styles.headerSection}>
-            <View style={styles.titleRow}>
-              <Text style={styles.title}>{idea.title}</Text>
-              <Pressable
-                style={styles.editButton}
-                onPress={() => setIsEditing(true)}
-              >
-                <Text style={styles.editButtonText}>Edit</Text>
-              </Pressable>
+          ) : (
+            <View style={styles.headerSection}>
+              <View style={styles.titleRow}>
+                <Pressable
+                  onPress={() => router.back()}
+                  style={({ pressed }) => [
+                    styles.backButton,
+                    pressed && styles.backButtonPressed,
+                  ]}
+                >
+                  <ChevronLeft size={20} color={colors.text} />
+                  <Text style={styles.backButtonText}>Back</Text>
+                </Pressable>
+                <Text style={styles.title}>{idea.title}</Text>
+                <Pressable
+                  style={styles.editButton}
+                  onPress={() => setIsEditing(true)}
+                >
+                  <Text style={styles.editButtonText}>Edit</Text>
+                </Pressable>
+              </View>
+              <Text style={styles.boardName}>In board: {board?.title}</Text>
+              <Text style={styles.date}>
+                Created {formatDate(idea.createdAt)}
+              </Text>
+              <Text style={styles.description}>{idea.description}</Text>
             </View>
-            <Text style={styles.boardName}>In board: {board?.title}</Text>
-            <Text style={styles.date}>
-              Created {formatDate(idea.createdAt)}
-            </Text>
-            <Text style={styles.description}>{idea.description}</Text>
-          </View>
-        )}
+          )}
 
-        <View style={styles.divider} />
+          <View style={styles.divider} />
 
-        <StatusSelector
-          currentStatus={idea.status}
-          onStatusChange={(status) => updateIdeaStatus(id, status)}
-        />
+          <StatusSelector
+            currentStatus={idea.status}
+            onStatusChange={(status) => updateIdeaStatus(id, status)}
+          />
 
-        <ImageGallery
-          images={idea.imageUrls}
-          onAddImage={(uri) => addImageToIdea(id, uri)}
-          onRemoveImage={(uri) => removeImageFromIdea(id, uri)}
-        />
+          <ImageGallery
+            images={idea.imageUrls}
+            onAddImage={(uri) => addImageToIdea(id, uri)}
+            onRemoveImage={(uri) => removeImageFromIdea(id, uri)}
+          />
 
-        <TagSelector
-          tags={idea.tags}
-          onAddTag={(name, color) => addTag(id, name, color)}
-          onRemoveTag={(tagId) => removeTag(id, tagId)}
-        />
+          <TagSelector
+            tags={idea.tags}
+            onAddTag={(name, color) => addTag(id, name, color)}
+            onRemoveTag={(tagId) => removeTag(id, tagId)}
+          />
 
-        <MilestoneList
-          milestones={idea.milestones}
-          onAddMilestone={(title) => addMilestone(id, title)}
-          onToggleMilestone={(milestoneId) => toggleMilestone(id, milestoneId)}
-          onDeleteMilestone={(milestoneId) => deleteMilestone(id, milestoneId)}
-        />
-      </ScrollView>
+          <MilestoneList
+            milestones={idea.milestones}
+            onAddMilestone={(title) => addMilestone(id, title)}
+            onToggleMilestone={(milestoneId) =>
+              toggleMilestone(id, milestoneId)
+            }
+            onDeleteMilestone={(milestoneId) =>
+              deleteMilestone(id, milestoneId)
+            }
+          />
+        </ScrollView>
+      </SafeAreaView>
     </View>
   );
 }
@@ -201,7 +220,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "700",
     color: colors.text,
-    flex: 1,
   },
   boardName: {
     fontSize: 14,
@@ -216,12 +234,12 @@ const styles = StyleSheet.create({
   description: {
     fontSize: 16,
     color: colors.text,
-    lineHeight: 24,
+    lineHeight: 20,
   },
   divider: {
     height: 1,
     backgroundColor: colors.border,
-    marginVertical: 24,
+    marginVertical: 20,
   },
   editContainer: {
     marginBottom: 16,
@@ -283,5 +301,23 @@ const styles = StyleSheet.create({
     color: colors.error,
     textAlign: "center",
     marginTop: 24,
+  },
+  backButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 8,
+    paddingHorizontal: 8,
+    borderRadius: 8,
+    backgroundColor: colors.background,
+    marginRight: 8,
+  },
+  backButtonPressed: {
+    opacity: 0.7,
+  },
+  backButtonText: {
+    marginLeft: 4,
+    fontSize: 16,
+    color: colors.text,
+    fontWeight: "500",
   },
 });
