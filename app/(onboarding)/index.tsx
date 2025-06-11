@@ -11,7 +11,7 @@ import {
   View,
 } from "react-native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
-import { useAuth } from "../context/auth";
+import { useAuth } from "@/context/auth";
 
 const { width, height } = Dimensions.get("window");
 const isSmallDevice = height < 700;
@@ -36,7 +36,7 @@ const onboardingSteps = [
     image: require("@/assets/images/onboarding-3.png"),
   },
   {
-    title: "Collaborate Seamlessly",
+    title: "Collaborate Seamlessly", 
     description:
       "Share your ideas with team members and work together in real-time to bring your concepts to life.",
     image: require("@/assets/images/onboarding-3.png"),

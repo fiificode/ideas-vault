@@ -19,7 +19,7 @@ import {
   Text,
   View,
 } from "react-native";
-import { useAuth } from "../context/auth";
+import { useAuth } from "@/context/auth";
 
 export default function ProfileScreen() {
   const router = useRouter();
